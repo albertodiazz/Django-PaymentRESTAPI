@@ -19,7 +19,6 @@ class Boletas(models.Model):
     statusPayment = models.CharField(max_length=50) 
     # Codigo de barras
     barCode = models.CharField(max_length=16, 
-                               unique=True, 
                                blank=True, 
                                editable=False,
                                default=create_bar_code)
