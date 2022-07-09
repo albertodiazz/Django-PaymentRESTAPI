@@ -16,6 +16,8 @@ class Boletas(models.Model):
     # Importe del servicio
     cost = models.PositiveIntegerField()
     # Status de pago Pending, paid, etc
+    # TODO : PENDIENTE
+    # [] Siempre que se creen deben ser pendientes
     statusPayment = models.CharField(max_length=50) 
     # Codigo de barras
     barCode = models.CharField(max_length=16, 
