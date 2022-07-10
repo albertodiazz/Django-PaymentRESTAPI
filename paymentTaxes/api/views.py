@@ -2,7 +2,9 @@ from django.shortcuts import render
 from django.views import View
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
-from .models import Boletas
+from django.views.decorators.csrf import csrf_exempt
+from .utils import create_bar_code 
+from .models import Boletas, Cliente
 import json
 
 
@@ -69,9 +71,30 @@ class Transactions(View):
         # Get importe acumulado osea todo el varo que nos ha entrado
         pass
 
-    def post(self, request):
+    def postform(self, request):
         # TODO : NOTA
+        response = """
+        <p> Metodo de Pago </p>
+
+        """
         # Ocupamos Post por que debemos crear una nueva identidad
         # que modifique el status de nuetros servicios pero que genere
         # su propia base de datos
-        pass
+        # post= Cliente(payment=request.POST.get('reference')) 
+        # post= Cliente(payment='hola') 
+        # post.save()
+        return HttpResponse(response)
+
+@csrf_exempt
+def postform(request):
+    # TODO : NOTA
+    response = """
+        <form id='post-form' method='POST' actions='create'> 
+        <p>Reference:</p>
+        <input type='text' id='reference' name='reference'><br>
+        <input type='submit'>
+        </form>
+    """
+    post= Cliente(payment=request.POST.get('reference')) 
+    post.save()
+    return HttpResponse(response)

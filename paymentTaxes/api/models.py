@@ -30,3 +30,11 @@ class Boletas(models.Model):
         self.statusPayment = self.statusPayment.lower()
         return super().save(*args, **kwargs)
 
+
+class Cliente(models.Model):
+    # Para saber cuando pago
+    date = models.DateTimeField(auto_now_add=True, blank=True)
+    # Para saber la referencia que pago
+    reference = models.CharField(max_length=16)
+    # Importe para abonar
+    payment = models.PositiveIntegerField()
