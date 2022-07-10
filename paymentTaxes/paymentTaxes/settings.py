@@ -35,8 +35,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-# TODO : PENDIENTE
-# [] Agregar CORS
 
 INSTALLED_APPS = [
     'paymentTaxes',

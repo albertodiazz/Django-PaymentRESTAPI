@@ -16,9 +16,10 @@ class Boletas(models.Model):
     # Importe del servicio
     cost = models.PositiveIntegerField()
     # Status de pago Pending, paid, etc
-    # TODO : PENDIENTE
-    # [] Siempre que se creen deben ser pendientes
-    statusPayment = models.CharField(max_length=50) 
+    statusPayment = models.CharField(max_length=50, 
+                                     blank=True,
+                                     editable=False,
+                                     default='pending') 
     # Codigo de barras
     barCode = models.CharField(max_length=16, 
                                blank=True, 
@@ -32,9 +33,21 @@ class Boletas(models.Model):
 
 
 class Cliente(models.Model):
-    # Para saber cuando pago
-    date = models.DateTimeField(auto_now_add=True, blank=True)
     # Para saber la referencia que pago
     reference = models.CharField(max_length=16)
+    paymentMethod = models.CharField(max_length=16)
     # Importe para abonar
     payment = models.PositiveIntegerField()
+    # Para saber cuando pago
+    date = models.DateTimeField(auto_now_add=True, blank=True)
+
+
+class Transactions(models.Model):
+    # Con esto podemos ver las transacciones y apartir de ello
+    # generar un algoritmo que visualize los adeudos y abonos
+    category = models.CharField(max_length=50)
+    amout = models.PositiveIntegerField(max_length=16) 
+    reference = models.CharField(max_length=16) 
+    statusPayment = models.CharField(max_length=50) 
+    date = models.DateTimeField(auto_now_add=True, blank=True)
+

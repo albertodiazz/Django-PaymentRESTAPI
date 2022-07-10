@@ -3,10 +3,17 @@ from django.views import View
 from django.http import HttpResponse
 from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.csrf import csrf_exempt
+import datetime
 from .utils import create_bar_code 
-from .models import Boletas, Cliente
+from .models import Boletas, Cliente, Transactions 
 import json
 
+# =================================
+# TODO : SHAME 
+# [] Me falto mostrar el formulario de tarjeta4 de debito o credito cuando
+# estas son seleccionadas
+# [] Me falto setear los rangos de fechas del pago del punto4
+# =================================
 
 # Create your views here.
 class PaymentServices(View):
@@ -25,10 +32,14 @@ class PaymentServices(View):
             [statusPayment] [str] : [filtramnos entre pending y paid]
             [servicesType] [str] : [filtramnos el servicio que queremos]
         '''
-
-        if (statusPayment.lower() == 'pending' or statusPayment.lower() == 'paid'):
-            boletas = list(Boletas.objects.filter(category= servicesType.lower(), 
-                                                  statusPayment= statusPayment.lower()).values()) 
+        print(statusPayment.lower())
+        if (statusPayment.lower() == 'pending' or statusPayment.lower() == 'paid' ):
+            if statusPayment.lower() == 'pending':
+                boletas = list(Boletas.objects.filter(category= servicesType.lower(), 
+                                                      statusPayment= statusPayment.lower()).values()) 
+            elif statusPayment.lower() == 'paid':
+                boletas = list(Transactions.objects.filter(category= servicesType.lower(),
+                                                           statusPayment= statusPayment.lower()).values()) 
             if (len(boletas) == 0):
                 result = 200
                 body = 'No se encontraron boletas: {} {}'.format(statusPayment.lower(),
@@ -37,10 +48,21 @@ class PaymentServices(View):
                 result = 200
                 body = []
                 # TODO : REFACT
+                acumulado, totalTransaciones = [], []
                 for i in range(len(boletas)):
-                    body.append({'expirationDate': boletas[i]['expirationDate'],
-                                 'cost': boletas[i]['cost'],
-                                 'paymentReference': boletas[i]['barCode']})
+                    if statusPayment.lower() == 'paid':
+                        acumulado.append(boletas[i]['amout'])
+                        totalTransaciones.append(boletas[i]['reference'])
+                        # body.append({'date': boletas[i]['date'],
+                        #              'amout': boletas[i]['amout'],
+                        #              'paymentReference': boletas[i]['reference']})
+                    elif statusPayment.lower() == 'pending':
+                        body.append({'expirationDate': boletas[i]['expirationDate'],
+                                     'cost': boletas[i]['cost'],
+                                     'paymentReference': boletas[i]['barCode']})
+                if len(acumulado) > 0 and len(totalTransaciones) > 0:
+                    body.append({'amout': sum(acumulado),
+                                 'totalTransaciones': len(totalTransaciones)})
 
         else: 
             result = 400
@@ -52,49 +74,46 @@ class PaymentServices(View):
         res = json.dumps(datos, cls= DjangoJSONEncoder)  
         return HttpResponse(res, content_type='application/json')
 
-    def post(self, request):
-        pass
-
-    def put(self, request):
-        pass
-
-    def delete(self, request):
-        pass
-
-
-class Transactions(View):
-    '''
-    Esta clase sirve para comprobar las trasacciones realizadas en periodos deseados
-    '''
-
-    def get(self, request):
-        # Get importe acumulado osea todo el varo que nos ha entrado
-        pass
-
-    def postform(self, request):
-        # TODO : NOTA
-        response = """
-        <p> Metodo de Pago </p>
-
-        """
-        # Ocupamos Post por que debemos crear una nueva identidad
-        # que modifique el status de nuetros servicios pero que genere
-        # su propia base de datos
-        # post= Cliente(payment=request.POST.get('reference')) 
-        # post= Cliente(payment='hola') 
-        # post.save()
-        return HttpResponse(response)
 
 @csrf_exempt
 def postform(request):
-    # TODO : NOTA
+    # TODO : REFACT 
     response = """
         <form id='post-form' method='POST' actions='create'> 
+        <label for="paymentMethod">Choose method payment:</label>
+        <select id="paymentMethod" name="paymentMethod">
+        <option value="debit_card">Debit Card</option>
+        <option value="credit_card">Credit Card</option>
+        <option value="cash">Cash</option>
+        </select> 
         <p>Reference:</p>
-        <input type='text' id='reference' name='reference'><br>
+        <input type='int' id='reference' name='reference'><br>
+        <p>Mount:</p>
+        <input type='text' id='payment' name='payment'><br>
         <input type='submit'>
         </form>
     """
-    post= Cliente(payment=request.POST.get('reference')) 
-    post.save()
+    payment = request.POST.get('payment')
+    reference = request.POST.get('reference')
+    paymentMethod = request.POST.get('paymentMethod')
+    if payment != None and reference != None:
+        boletas = list(Boletas.objects.filter(barCode = int(reference)).values())
+        print(boletas)
+        if len(boletas) != 0 and boletas[0]['statusPayment'] == 'pending':
+            print('La boleta con referencia: {} Existe'.format(reference))
+            post= Cliente(payment=payment, reference=reference, paymentMethod=paymentMethod) 
+            postT= Transactions(category=boletas[0]['category'], 
+                                statusPayment='paid', 
+                                amout=payment, 
+                                reference=reference) 
+            post.save()
+            postT.save()
+            response = """
+                <p>Tu pago fue realizado con exito</p>
+            """
+        else:
+            response = """
+                <p>La referencia no Existe</p>
+            """
+            print('La boleta con referencia: {} No existe'.format(reference))
     return HttpResponse(response)
