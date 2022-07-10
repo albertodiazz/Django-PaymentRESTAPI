@@ -49,4 +49,4 @@ Existen tres colecciones en Mongo:
 + **api_cliente:** Tiene la informacion del cliente y su referencia de con que pago, etc.
 
 ## Nota
-Existe un archivo .env que contiene las credeneciales de la base de datos (esto nunca lo subo es una excepcion)
+Existe un archivo [.env](https://github.com/albertodiazz/Django-PaymentRESTAPI/blob/main/paymentTaxes/paymentTaxes/.env) que contiene las credeneciales de la base de datos (esto nunca lo subo es una excepcion)
