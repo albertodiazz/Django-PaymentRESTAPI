@@ -12,7 +12,7 @@ use payments
 db.createUser(
 		{
 	user: "newCombin",
-	pwd:  passwordPrompt(),   
+	pwd:  passwordPrompt(), // Pon el password: newcombin1 es el que tengo en .env   
 	roles: [ { role: "readWrite", db: "payments"  }
 	}
 )
@@ -41,6 +41,10 @@ paid: En lista todas las boletas pagadas : en base al punto4 del reto
 Ejemplo:
 curl -X GET http://localhost:8000/api/boletas/pending/luz
 
+```
++ Para realizar los pagos hay que acceder a [pagos](http://localhost:8000/api/postform) en el cual nos aparecera un formulario. IMPORTATE solo podremos realizar pagos de boletas existentes y en estado pending.
+```[bash]
+http://localhost:8000/api/postform/
 ```
 ## Models
 Existen tres colecciones en Mongo: 
