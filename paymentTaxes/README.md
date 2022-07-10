@@ -47,3 +47,6 @@ Existen tres colecciones en Mongo:
 + **api_boletas:** Tiene toda la informacion de las boletas creadas.
 + **api_transactions:** Tiene toda la informacion referente a transacciones.
 + **api_cliente:** Tiene la informacion del cliente y su referencia de con que pago, etc.
+
+## Nota
+Existe un archivo .env que contiene las credeneciales de la base de datos (esto nunca lo subo es una excepcion)
